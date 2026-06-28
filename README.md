@@ -11,7 +11,7 @@ thesis *"Modelos de Regressão Box-Cox Cole e Green Robustos"* (UnB, 2026).
 ## Installation
 
 ```r
-# Install from the local source folder (while developing):
+# Install from GitHub:
 devtools::install_github("thutgs/RobustBCCGRegression")
 ```
 
