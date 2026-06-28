@@ -1,0 +1,37 @@
+Package: RobustBCCGRegression
+Title: Robust Regression for the Box-Cox Cole and Green Distribution via MDPDE
+Version: 0.1.0
+Authors@R: 
+    person("Arthur", "Gonçalves de Souza", , "arthurgo.souza@gmail.com", role = c("aut", "cre"))
+Description: Implements robust estimation of Box-Cox Cole and Green (BCCG) regression
+    models using the Minimum Density Power Divergence Estimator (MDPDE), as proposed
+    by Basu et al. (1998) <doi:10.1093/biomet/85.3.549>. The BCCG distribution, 
+    introduced by Cole and Green (1992), models strictly positive, potentially skewed
+    responses via three parameters: median (mu), approximate coefficient of variation
+    (sigma), and skewness (nu). The package provides MDPDE-based estimation that
+    downweights outliers, an automatic data-driven alpha selection procedure via
+    trimmed negative log-likelihood (LVNMP), sandwich-based asymptotic covariance
+    estimation, and diagnostic tools including quantile residuals, worm plots, and
+    a weights-versus-residuals plot. The MLE special case (alpha = 0) is handled
+    via the 'gamlss' package.
+License: GPL (>= 3)
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+Depends:
+    R (>= 4.1.0)
+Imports:
+    gamlss (>= 5.4.0),
+    gamlss.dist (>= 6.0.0),
+    robustbase (>= 0.95.0),
+    MASS,
+    ggplot2 (>= 3.4.0),
+    ggrepel (>= 0.9.0),
+    gridExtra (>= 2.3)
+Suggests:
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown
+Config/testthat/edition: 3
+URL: https://github.com/arthurgoncalves/RobustBCCGRegression
+BugReports: https://github.com/arthurgoncalves/RobustBCCGRegression/issues
+Config/roxygen2/version: 8.0.0
