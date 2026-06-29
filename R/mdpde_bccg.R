@@ -266,10 +266,10 @@ mdpde_bccg <- function(formula, sigma.formula = ~1, nu.formula = ~1,
                               mu.link, sigma.link, nu.link)
     cov_matrix <- tryCatch({
       J_inv <- solve(J)
-      (J_inv %*% K %*% J_inv)
+      (J_inv %*% K %*% J_inv) / n
     }, error = function(e) {
       J_inv <- MASS::ginv(J)
-      (J_inv %*% K %*% J_inv)
+      (J_inv %*% K %*% J_inv) / n
     })
   }
 
