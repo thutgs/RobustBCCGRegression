@@ -124,7 +124,7 @@ calculate_k <- function(theta, y, X_mu, X_sigma, X_nu, alpha,
 #' \describe{
 #'   \item{coefficients}{Named list with entries `mu`, `sigma`, `nu`.}
 #'   \item{se}{Asymptotic standard errors (sandwich), same structure.}
-#'   \item{t_values, p_values}{Wald statistics and two-sided p-values.}
+#'   \item{z_values, p_values}{Wald statistics and two-sided p-values.}
 #'   \item{fitted.values}{Data frame with columns `mu`, `sigma`, `nu`.}
 #'   \item{residuals}{Randomised quantile residuals.}
 #'   \item{weights}{Robust weights \eqn{w_i = f(y_i; \hat\theta)^\alpha}.}
@@ -266,10 +266,10 @@ mdpde_bccg <- function(formula, sigma.formula = ~1, nu.formula = ~1,
                               mu.link, sigma.link, nu.link)
     cov_matrix <- tryCatch({
       J_inv <- solve(J)
-      (J_inv %*% K %*% J_inv) / (n - p_total)
+      (J_inv %*% K %*% J_inv)
     }, error = function(e) {
       J_inv <- MASS::ginv(J)
-      (J_inv %*% K %*% J_inv) / (n - p_total)
+      (J_inv %*% K %*% J_inv)
     })
   }
 
@@ -284,12 +284,12 @@ mdpde_bccg <- function(formula, sigma.formula = ~1, nu.formula = ~1,
   se_sigma    <- se_all[(p_mu + 1):(p_mu + p_sigma)];              names(se_sigma)   <- names(coef_sigma)
   se_nu       <- se_all[(p_mu + p_sigma + 1):p_total];             names(se_nu)      <- names(coef_nu)
 
-  t_mu        <- coef_mu    / se_mu
-  t_sigma     <- coef_sigma / se_sigma
-  t_nu        <- coef_nu    / se_nu
-  p_mu_val    <- 2 * pt(abs(t_mu),    df = n - p_total, lower.tail = FALSE)
-  p_sigma_val <- 2 * pt(abs(t_sigma), df = n - p_total, lower.tail = FALSE)
-  p_nu_val    <- 2 * pt(abs(t_nu),    df = n - p_total, lower.tail = FALSE)
+  z_mu        <- coef_mu    / se_mu
+  z_sigma     <- coef_sigma / se_sigma
+  z_nu        <- coef_nu    / se_nu
+  p_mu_val    <- 2 * pnorm(abs(z_mu), lower.tail = FALSE)
+  p_sigma_val <- 2 * pnorm(abs(z_sigma), lower.tail = FALSE)
+  p_nu_val    <- 2 * pnorm(abs(z_nu), lower.tail = FALSE)
 
   fitted_mu    <- link_inverse(as.vector(X_mu    %*% coef_mu),    mu.link)
   fitted_sigma <- link_inverse(as.vector(X_sigma %*% coef_sigma), sigma.link)
@@ -307,7 +307,7 @@ mdpde_bccg <- function(formula, sigma.formula = ~1, nu.formula = ~1,
     list(
       coefficients   = list(mu = coef_mu, sigma = coef_sigma, nu = coef_nu),
       se             = list(mu = se_mu,   sigma = se_sigma,   nu = se_nu),
-      t_values       = list(mu = t_mu,    sigma = t_sigma,    nu = t_nu),
+      z_values       = list(mu = z_mu,    sigma = z_sigma,    nu = z_nu),
       p_values       = list(mu = p_mu_val, sigma = p_sigma_val, nu = p_nu_val),
       fitted.values  = data.frame(mu = fitted_mu, sigma = fitted_sigma, nu = fitted_nu),
       residuals      = res_q,
@@ -358,7 +358,7 @@ print.mdpde_bccg <- function(x, ...) {
 
 #' Summarise an mdpde_bccg object
 #'
-#' Prints coefficient tables with standard errors, Wald t-values, and p-values
+#' Prints coefficient tables with standard errors, Wald z-statistics, and p-values
 #' for all three sub-models.
 #'
 #' @param object An object of class `"mdpde_bccg"`.
@@ -371,7 +371,7 @@ summary.mdpde_bccg <- function(object, ...) {
               object$alpha, object$value,
               ifelse(object$convergence == 0, "Yes", "No")))
 
-  .print_table <- function(label, coef_v, se_v, t_v, p_v, link) {
+  .print_table <- function(label, coef_v, se_v, z_v, p_v, link) {
     cat(sprintf(
       "\n-------------------------------------------------------------------\n%s coefficients  (link = %s)\n-------------------------------------------------------------------\n",
       toupper(label), link
@@ -379,7 +379,7 @@ summary.mdpde_bccg <- function(object, ...) {
     tab        <- data.frame(
       Estimate  = round(coef_v, 4),
       Std.Error = round(se_v,   7),
-      t.value   = round(t_v,    4),
+      z.value   = round(z_v,    4),
       p.value   = format.pval(p_v, digits = 4, eps = 1e-4)
     )
     tab$Signif <- ifelse(p_v < 0.001, "***",
@@ -389,9 +389,9 @@ summary.mdpde_bccg <- function(object, ...) {
     print(tab)
   }
 
-  .print_table("mu",    object$coefficients$mu,    object$se$mu,    object$t_values$mu,    object$p_values$mu,    object$links$mu)
-  .print_table("sigma", object$coefficients$sigma, object$se$sigma, object$t_values$sigma, object$p_values$sigma, object$links$sigma)
-  .print_table("nu",    object$coefficients$nu,    object$se$nu,    object$t_values$nu,    object$p_values$nu,    object$links$nu)
+  .print_table("mu",    object$coefficients$mu,    object$se$mu,    object$z_values$mu,    object$p_values$mu,    object$links$mu)
+  .print_table("sigma", object$coefficients$sigma, object$se$sigma, object$z_values$sigma, object$p_values$sigma, object$links$sigma)
+  .print_table("nu",    object$coefficients$nu,    object$se$nu,    object$z_values$nu,    object$p_values$nu,    object$links$nu)
   cat("===================================================================\n")
   invisible(object)
 }
