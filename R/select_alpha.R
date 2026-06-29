@@ -253,6 +253,8 @@ select_alpha_mdpde <- function(formula,
 
   message(sprintf("\n>>> FINAL OPTIMAL ALPHA: %.2f <<<\n", optimal_alpha))
 
+  summary(final_fit)
+
   results$Category <- results$Type
   if (nrow(results) > 0)
     results$Category[results$alpha == optimal_alpha] <- "Optimal"
